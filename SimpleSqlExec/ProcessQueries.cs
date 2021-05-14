@@ -70,32 +70,51 @@ namespace SimpleSqlExec
                             _Command.CommandText = _Queries.GetBatch();
 
                             Helpers.Debug("Executing the batch...");
-                            using (SqlDataReader _Reader = _Command.ExecuteReader())
+
+                            try
                             {
-                                object[] _ResultRow;
-                                string _OutputRow;
-
-
-                                do
+                                using (SqlDataReader _Reader = _Command.ExecuteReader())
                                 {
-                                    _Output.Send(_Output.GetHeader(_Reader, InputParams.ColumnSeparator));
+                                    object[] _ResultRow;
+                                    string _OutputRow;
 
-                                    if (_Reader.HasRows)
+
+                                    do
                                     {
-                                        _ResultRow = new object[_Reader.FieldCount];
+                                        _Output.Send(_Output.GetHeader(_Reader, InputParams.ColumnSeparator));
 
-                                        while (_Reader.Read())
+                                        if (_Reader.HasRows)
                                         {
-                                            _Reader.GetValues(_ResultRow);
-                                            _OutputRow = String.Join(InputParams.ColumnSeparator, _ResultRow);
+                                            _ResultRow = new object[_Reader.FieldCount];
 
-                                            _Output.Send(_OutputRow);
+                                            while (_Reader.Read())
+                                            {
+                                                _Reader.GetValues(_ResultRow);
+                                                _OutputRow = String.Join(InputParams.ColumnSeparator, _ResultRow);
+
+                                                _Output.Send(_OutputRow);
+                                            }
+
+                                            _ResultRow = null;
+                                        } else
+                                        {
+                                            _Output.Send($"[EXECUTED]:\n { _Command.CommandText }");
                                         }
+                                    } while (_Reader.NextResult());
+                                } // using (SqlDataReader...
+                            }
+                            catch (SqlException ex)
+                            {
+                                _Output.Send(String.Concat("[ERROR]:\n", $"{_Command.CommandText}\n", ex.Message, "\n\n",
+                    "Error Number:    ", ex.Number, "\n",
+                    "Error Level:     ", ex.Class, "\n",
+                    "Error State:     ", ex.State, "\n",
+                    "Error Procedure: ", ex.Procedure, "\n",
+                    "Error Line:      ", ex.LineNumber, "\n",
+                    "HRESULT:         ", ex.ErrorCode, "\n"
+                    ));
+                            }
 
-                                        _ResultRow = null;
-                                    }
-                                } while (_Reader.NextResult());
-                            } // using (SqlDataReader...
                         } // while (_Queries.NextBatch())
                     }
                     //catch

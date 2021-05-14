@@ -78,19 +78,6 @@ namespace SimpleSqlExec
             {
                 ProcessQueries(_InputParams, _ConnectionString);
             }
-            catch (SqlException _SqlException)
-            {
-                Display.Error(String.Concat(_SqlException.Message, "\n\n",
-                    "Error Number:    ", _SqlException.Number, "\n",
-                    "Error Level:     ", _SqlException.Class, "\n",
-                    "Error State:     ", _SqlException.State, "\n",
-                    "Error Procedure: ", _SqlException.Procedure, "\n",
-                    "Error Line:      ", _SqlException.LineNumber, "\n",
-                    "HRESULT:         ", _SqlException.ErrorCode, "\n"
-                    ));
-
-                return 4;
-            }
             catch (Exception _Exception)
             {
                 Display.Error(_Exception.Message);

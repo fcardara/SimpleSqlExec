@@ -51,3 +51,5 @@ Compiled/results.txt
 Compiled/debug.txt
 Compiled/output.txt
 Compiled/rows.txt
+
+SimpleSqlExec/**/*.sql
